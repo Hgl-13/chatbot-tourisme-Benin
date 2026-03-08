@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # LLM Provider
     groq_api_key: Optional[str] = None
     openai_api_key: Optional[str] = None
-    llm_provider: str = "groq"  # "groq" or "openai"
+    llm_provider: str = "groq" 
     llm_model: str = "mixtral-8x7b-32768"
 
     # Embeddings
@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
     class Config:
-        env_file = ".env"
+        env_file = ".env"  
         env_file_encoding = "utf-8"
         case_sensitive = False
 

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     app_name: str = "Chatbot Tourisme Bénin"
     app_version: str = "1.0.0"
     debug: bool = True
-    port: int = 8000
+    port: int = 4200
 
     # CORS
     frontend_url: str = "http://localhost:5173"

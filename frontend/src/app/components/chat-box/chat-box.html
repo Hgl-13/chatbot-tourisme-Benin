@@ -1,0 +1,167 @@
+<div class="chatbot-container">
+
+    <!-- Overlay sidebar -->
+    <div
+      class="sidebar-overlay"
+      [class.visible]="sidebarOpen"
+      (click)="closeSidebar()"
+    ></div>
+  
+    <!-- Sidebar historique -->
+    <aside class="sidebar" [class.open]="sidebarOpen">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Historique</span>
+        <button class="sidebar-close" (click)="closeSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+  
+      <button class="new-chat-btn" (click)="newConversation()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nouvelle conversation
+      </button>
+  
+      <div class="conversations-list">
+        <button
+          *ngFor="let conv of conversations"
+          class="conversation-item"
+          (click)="selectConversation(conv)"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <div class="conversation-info">
+            <span class="conversation-title">{{ conv.title }}</span>
+            <span class="conversation-date">{{ conv.date | date:'dd MMM yyyy' }}</span>
+          </div>
+        </button>
+      </div>
+    </aside>
+  
+    <!-- Zone principale -->
+    <main class="main-area">
+  
+      <!-- Header -->
+      <header class="chat-header">
+        <button class="menu-btn" (click)="toggleSidebar()" aria-label="Historique">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
+        </button>
+        <div class="header-brand">
+          <span class="brand-icon">◈</span>
+          <span class="brand-name">Prêtre du Fâ</span>
+        </div>
+        <div class="header-spacer"></div>
+      </header>
+  
+      <!-- Messages -->
+      <div class="messages-area" #messagesContainer>
+  
+        <!-- Écran d'accueil -->
+        <div *ngIf="!hasMessages" class="welcome-screen">
+          <div class="welcome-symbol">
+            <div class="symbol-glow"></div>
+            <svg class="fa-symbol" width="80" height="80" viewBox="0 0 100 100">
+              <circle cx="50" cy="20" r="6" fill="#D4A843"/>
+              <circle cx="26" cy="38" r="6" fill="#D4A843"/>
+              <circle cx="74" cy="38" r="6" fill="#D4A843"/>
+              <circle cx="50" cy="56" r="6" fill="#D4A843"/>
+              <circle cx="26" cy="74" r="6" fill="#D4A843"/>
+              <circle cx="74" cy="74" r="6" fill="#D4A843"/>
+              <line x1="50" y1="26" x2="26" y2="32" stroke="#D4A843" stroke-width="1.5" opacity="0.5"/>
+              <line x1="50" y1="26" x2="74" y2="32" stroke="#D4A843" stroke-width="1.5" opacity="0.5"/>
+              <line x1="26" y1="44" x2="50" y2="50" stroke="#D4A843" stroke-width="1.5" opacity="0.5"/>
+              <line x1="74" y1="44" x2="50" y2="50" stroke="#D4A843" stroke-width="1.5" opacity="0.5"/>
+              <line x1="50" y1="62" x2="26" y2="68" stroke="#D4A843" stroke-width="1.5" opacity="0.5"/>
+              <line x1="50" y1="62" x2="74" y2="68" stroke="#D4A843" stroke-width="1.5" opacity="0.5"/>
+            </svg>
+          </div>
+          <h1 class="welcome-title">Bienvenue chez le Prêtre du Fâ</h1>
+          <p class="welcome-subtitle">Posez vos questions sur le Bénin...</p>
+  
+          <div class="suggestion-chips">
+            <button class="chip" (click)="sendSuggestion('Quels sont les sites touristiques incontournables du Bénin ?')">
+              Sites touristiques
+            </button>
+            <button class="chip" (click)="sendSuggestion('Raconte-moi l\'histoire du Royaume du Dahomey')">
+              Royaume du Dahomey
+            </button>
+            <button class="chip" (click)="sendSuggestion('Qu\'est-ce que le Vodoun ?')">
+              Le Vodoun
+            </button>
+            <button class="chip" (click)="sendSuggestion('Quels plats traditionnels dois-je goûter ?')">
+              Gastronomie
+            </button>
+          </div>
+        </div>
+  
+        <!-- Liste des messages -->
+        <div *ngIf="hasMessages" class="messages-list">
+          <div
+            *ngFor="let msg of messages"
+            class="message"
+            [ngClass]="{ 'user': msg.role === 'user', 'assistant': msg.role === 'assistant' }"
+          >
+            <div *ngIf="msg.role === 'assistant'" class="avatar assistant-avatar">
+              <span>◈</span>
+            </div>
+            <div
+              class="message-bubble"
+              [ngClass]="{ 'user-bubble': msg.role === 'user', 'assistant-bubble': msg.role === 'assistant' }"
+            >
+              {{ msg.content }}
+            </div>
+          </div>
+  
+          <!-- Indicateur de frappe -->
+          <div *ngIf="loading" class="message assistant">
+            <div class="avatar assistant-avatar">
+              <span>◈</span>
+            </div>
+            <div class="message-bubble assistant-bubble typing-indicator">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+  
+          <!-- Message d'erreur -->
+          <div *ngIf="errorMessage" class="error-toast">
+            {{ errorMessage }}
+          </div>
+        </div>
+      </div>
+  
+      <!-- Barre de saisie -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea
+            class="message-input"
+            [(ngModel)]="userInput"
+            (keydown)="onKeydown($event)"
+            [disabled]="loading"
+            placeholder="Interrogez le Fâ..."
+            rows="1"
+          ></textarea>
+          <button
+            class="send-btn"
+            (click)="sendMessage()"
+            [disabled]= "loading || !userInput.trim()"
+            [class.active]="userInput.trim() && !loading"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+        <p class="input-footer">Le Prêtre du Fâ peut se tromper. Vérifiez les informations importantes.</p>
+      </div>
+  
+    </main>
+  </div>
+AJOUTER UN BOUTON POUR ARRETER UNE GENERATION DE REPONSE EN COURS  
